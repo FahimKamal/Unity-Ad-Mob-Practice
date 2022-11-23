@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Common;
@@ -9,25 +7,33 @@ public class AdManager : MonoBehaviour
 {
     public static AdManager Instance;
     
-    public string androidApp_Id;
-    public string iosApp_Id;
+    [Header("App ID's for Admob")]
+    public string androidAppId;
+    public string iosAppId;
+    [Space(10)]
     
-    public string androidBanner_Id;
-    public string iosBanner_Id;
-    public string banner_Id;
+    [Header("Banner ID's for Admob")]
+    public string androidBannerId;
+    public string iosBannerId;
+    [HideInInspector] public string bannerId;
+    [Space(10)]
     
-    public string androidInterstitial_Id;
-    public string iosInterstitial_Id;
-    public string interstitial_Id;
+    [Header("Interstitial ID's for Admob")]
+    public string androidInterstitialId;
+    public string iosInterstitialId;
+    [HideInInspector] public string interstitialId;
+    [Space(10)]
     
-    public string androidRewardedVideo_Id;
-    public string iosRewardedVideo_Id;
-    public string rewardedVideo_Id;
+    [Header("Rewarded ID's for Admob")]
+    public string androidRewardedVideoId;
+    public string iosRewardedVideoId;
+    [HideInInspector] public string rewardedVideoId;
     
     private BannerView bannerView;
-    private BannerView nativebannerView;
     private InterstitialAd interstitial;
     private RewardedAd rewardedAd;
+
+    #region Singleton
 
     private void Awake()
     {
@@ -42,9 +48,22 @@ public class AdManager : MonoBehaviour
         }
     }
 
+    #endregion
+    
+
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
+        #if UNITY_ANDROID
+                bannerId = androidBannerId;
+                interstitialId = androidInterstitialId;
+                rewardedVideoId = androidRewardedVideoId;
+        #elif UNITY_IOS
+                bannerId = iosBannerId;
+                interstitialId = iosInterstitialId;
+                rewardedVideoId = iosRewardedVideoId;
+        #endif
+        
         MobileAds.SetiOSAppPauseOnBackground(true);
 
         // Initialize the Google Mobile Ads SDK.
@@ -78,7 +97,7 @@ public class AdManager : MonoBehaviour
             }
 
             // Create an interstitial.
-            this.interstitial = new InterstitialAd(interstitial_Id);
+            this.interstitial = new InterstitialAd(interstitialId);
 
             // Register for ad events.
             this.interstitial.OnAdLoaded += this.HandleOnAdLoaded;
@@ -102,7 +121,7 @@ public class AdManager : MonoBehaviour
                 this.bannerView.Destroy();
             }
             // Create a 320x50 banner at the top of the screen.
-            this.bannerView = new BannerView(banner_Id, AdSize.Banner, AdPosition.Top);
+            this.bannerView = new BannerView(bannerId, AdSize.Banner, AdPosition.Top);
 
             // Register for ad events.
             this.bannerView.OnAdLoaded += this.HandleAdLoaded;
@@ -117,28 +136,13 @@ public class AdManager : MonoBehaviour
             print("Show Top Banner");
         }
     }
-    public void RequestNativeBanner()
-    {
-        if (PlayerPrefs.GetInt("RemoveAds") == 0)
-        {
-            if (this.nativebannerView != null)
-            {
-                this.nativebannerView.Destroy();
-            }
-
-            this.nativebannerView = new BannerView(banner_Id, AdSize.MediumRectangle, 0, 54);
-
-
-            this.nativebannerView.LoadAd(this.CreateAdRequest());
-            this.nativebannerView.Hide();
-        }
-    }
+    
     private void RequestAdmobRewarded()
     {
 
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
         {
-            this.rewardedAd = new RewardedAd(rewardedVideo_Id);
+            this.rewardedAd = new RewardedAd(rewardedVideoId);
 
             // Called when an ad request has successfully loaded.
             this.rewardedAd.OnAdLoaded += HandleRewardedAdLoaded;
@@ -192,7 +196,7 @@ public class AdManager : MonoBehaviour
     
     
     #region Interstial callback handlers 
-    public void HandleOnAdLoaded(object sender, System.EventArgs args)
+    public void HandleOnAdLoaded(object sender, EventArgs args)
     {
         MonoBehaviour.print("HandleAdLoaded event received");
     }
@@ -200,24 +204,24 @@ public class AdManager : MonoBehaviour
     public void HandleOnAdFailedToLoad(object sender, AdFailedToLoadEventArgs args)
     {
         MonoBehaviour.print("HandleFailedToReceiveAd event received with message: "
-                            + args.ToString());
+                            + args);
         RequestInterstitial();
     }
 
-    public void HandleOnAdOpened(object sender, System.EventArgs args)
+    public void HandleOnAdOpened(object sender, EventArgs args)
     {
         MonoBehaviour.print("HandleAdOpened event received");
 
     }
 
-    public void HandleOnAdClosed(object sender, System.EventArgs args)
+    public void HandleOnAdClosed(object sender, EventArgs args)
     {
         MonoBehaviour.print("HandleAdClosed event received");
         RequestInterstitial();
 
     }
 
-    public void HandleOnAdLeavingApplication(object sender, System.EventArgs args)
+    public void HandleOnAdLeavingApplication(object sender, EventArgs args)
     {
         MonoBehaviour.print("HandleAdLeavingApplication event received");
     }
@@ -226,7 +230,7 @@ public class AdManager : MonoBehaviour
     
     #region AdmobRewarded_Ad callback handlers
 
-    public void HandleRewardedAdLoaded(object sender, System.EventArgs args)
+    public void HandleRewardedAdLoaded(object sender, EventArgs args)
     {
         MonoBehaviour.print("HandleRewardedAdLoaded event received");
     }
@@ -239,7 +243,7 @@ public class AdManager : MonoBehaviour
         // RequestAdmobRewarded();
     }
 
-    public void HandleRewardedAdOpening(object sender, System.EventArgs args)
+    public void HandleRewardedAdOpening(object sender, EventArgs args)
     {
         MonoBehaviour.print("HandleRewardedAdOpening event received");
         // RequestAdmobRewarded();
@@ -284,10 +288,6 @@ public class AdManager : MonoBehaviour
             {
                 this.bannerView.Show();
             }
-            // else
-            // {
-            //     AdViewScene.instance.ShowFbBanner();
-            // }
         }
     }
     public void HideTopBanner()
@@ -299,28 +299,6 @@ public class AdManager : MonoBehaviour
                 this.bannerView.Hide();
             }
         }
-    }
-    public void ShowNativeBanner()
-    {
-        if (PlayerPrefs.GetInt("RemoveAds") == 0)
-        {
-            if (this.nativebannerView != null)
-            {
-                this.nativebannerView.Show();
-            }
-            //HideTopBanner();
-        }
-    }
-    public void HideNativeBanner()
-    {
-        if (PlayerPrefs.GetInt("RemoveAds") == 0)
-        {
-            if (this.nativebannerView != null)
-            {
-                this.nativebannerView.Hide();
-            }
-        }
-        //ShowTopBanner();
     }
 
     public void ShowAdmobInterstial()

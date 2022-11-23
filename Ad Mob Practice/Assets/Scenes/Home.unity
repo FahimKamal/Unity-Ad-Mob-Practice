@@ -376,14 +376,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   androidApp_Id: 
   iosApp_Id: 
-  androidBanner_Id: 
-  iosBanner_Id: 
+  androidBanner_Id: ca-app-pub-3940256099942544/6300978111
+  iosBanner_Id: ca-app-pub-3940256099942544/2934735716
   banner_Id: 
-  androidInterstitial_Id: 
-  iosInterstitial_Id: 
+  androidInterstitial_Id: ca-app-pub-3940256099942544/1033173712
+  iosInterstitial_Id: ca-app-pub-3940256099942544/4411468910
   interstitial_Id: 
-  androidRewardedVideo_Id: 
-  iosRewardedVideo_Id: 
+  androidRewardedVideo_Id: ca-app-pub-3940256099942544/5224354917
+  iosRewardedVideo_Id: ca-app-pub-3940256099942544/1712485313
   rewardedVideo_Id: 
 --- !u!1 &375214463
 GameObject:
