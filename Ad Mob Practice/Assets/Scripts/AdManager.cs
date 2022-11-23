@@ -5,6 +5,20 @@ using GoogleMobileAds.Common;
 
 public class AdManager : MonoBehaviour
 {
+    /// <summary>
+    /// ID's for android
+    /// App open	    ca-app-pub-3940256099942544/3419835294
+    /// Banner	        ca-app-pub-3940256099942544/6300978111
+    /// Interstitial	ca-app-pub-3940256099942544/1033173712
+    /// Rewarded	    ca-app-pub-3940256099942544/5224354917
+    ///
+    /// ID's for iOS
+    /// App open	    ca-app-pub-3940256099942544/5662855259
+    /// Banner	        ca-app-pub-3940256099942544/2934735716
+    /// Interstitial	ca-app-pub-3940256099942544/4411468910
+    /// Rewarded	    ca-app-pub-3940256099942544/1712485313
+    /// </summary>
+    
     public static AdManager Instance;
     
     [Header("App ID's for Admob")]
@@ -50,7 +64,6 @@ public class AdManager : MonoBehaviour
 
     #endregion
     
-
     // Start is called before the first frame update
     private void Start()
     {
@@ -70,7 +83,7 @@ public class AdManager : MonoBehaviour
         MobileAds.Initialize(HandleInitCompleteAction);
     }
 
-    private void HandleInitCompleteAction(InitializationStatus initstatus)
+    private void HandleInitCompleteAction(InitializationStatus initStatus)
     {
         MobileAdsEventExecutor.ExecuteInUpdate(() =>
         {
@@ -86,29 +99,34 @@ public class AdManager : MonoBehaviour
     {
         return new AdRequest.Builder().Build();
     }
-    private void RequestInterstitial()
+    private InterstitialAd RequestInterstitial()
     {
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
         {
             // Clean up interstitial ad before creating a new one.
-            if (this.interstitial != null)
+            // We might have to shift this if statement to the place where we are calling this function.
+            if (interstitial != null)
             {
-                this.interstitial.Destroy();
+                interstitial.Destroy();
             }
 
             // Create an interstitial.
-            this.interstitial = new InterstitialAd(interstitialId);
+            interstitial = new InterstitialAd(interstitialId);
 
             // Register for ad events.
-            this.interstitial.OnAdLoaded += this.HandleOnAdLoaded;
-            this.interstitial.OnAdFailedToLoad += this.HandleOnAdFailedToLoad;
-            this.interstitial.OnAdOpening += this.HandleOnAdOpened;
-            this.interstitial.OnAdClosed += this.HandleOnAdClosed;
+            interstitial.OnAdLoaded += this.HandleOnAdLoaded;
+            interstitial.OnAdFailedToLoad += this.HandleOnAdFailedToLoad;
+            interstitial.OnAdOpening += this.HandleOnAdOpened;
+            interstitial.OnAdClosed += this.HandleOnAdClosed;
             // this.interstitial. += this.HandleOnAdLeavingApplication;
 
             // Load an interstitial ad.
-            this.interstitial.LoadAd(this.CreateAdRequest());
+            interstitial.LoadAd(this.CreateAdRequest());
+
+            return interstitial;
         }
+        
+        return new InterstitialAd(interstitialId);
 
     }
     public void RequestBanner()
@@ -116,6 +134,7 @@ public class AdManager : MonoBehaviour
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
         {
             // Clean up banner ad before creating a new one.
+            // We might have to shift this if statement to the place where we are calling this function.
             if (this.bannerView != null)
             {
                 this.bannerView.Destroy();
@@ -169,27 +188,27 @@ public class AdManager : MonoBehaviour
 
     public void HandleAdLoaded(object sender, EventArgs args)
     {
-        MonoBehaviour.print("HandleAdLoaded event received");
+        print("HandleAdLoaded event received");
     }
 
     public void HandleAdFailedToLoad(object sender, AdFailedToLoadEventArgs args)
     {
-        MonoBehaviour.print("HandleFailedToReceiveAd event received with message: " + args.LoadAdError);
+        print("HandleFailedToReceiveAd event received with message: " + args.LoadAdError);
     }
 
     public void HandleAdOpened(object sender, EventArgs args)
     {
-        MonoBehaviour.print("HandleAdOpened event received");
+        print("HandleAdOpened event received");
     }
 
     public void HandleAdClosed(object sender, EventArgs args)
     {
-        MonoBehaviour.print("HandleAdClosed event received");
+        print("HandleAdClosed event received");
     }
 
     public void HandleAdLeftApplication(object sender, EventArgs args)
     {
-        MonoBehaviour.print("HandleAdLeftApplication event received");
+        print("HandleAdLeftApplication event received");
     }
 
     #endregion
@@ -198,32 +217,32 @@ public class AdManager : MonoBehaviour
     #region Interstial callback handlers 
     public void HandleOnAdLoaded(object sender, EventArgs args)
     {
-        MonoBehaviour.print("HandleAdLoaded event received");
+        print("HandleAdLoaded event received");
     }
 
     public void HandleOnAdFailedToLoad(object sender, AdFailedToLoadEventArgs args)
     {
-        MonoBehaviour.print("HandleFailedToReceiveAd event received with message: "
+        print("HandleFailedToReceiveAd event received with message: "
                             + args);
         RequestInterstitial();
     }
 
     public void HandleOnAdOpened(object sender, EventArgs args)
     {
-        MonoBehaviour.print("HandleAdOpened event received");
+        print("HandleAdOpened event received");
 
     }
 
     public void HandleOnAdClosed(object sender, EventArgs args)
     {
-        MonoBehaviour.print("HandleAdClosed event received");
+        print("HandleAdClosed event received");
         RequestInterstitial();
 
     }
 
     public void HandleOnAdLeavingApplication(object sender, EventArgs args)
     {
-        MonoBehaviour.print("HandleAdLeavingApplication event received");
+        print("HandleAdLeavingApplication event received");
     }
     #endregion
     
@@ -232,47 +251,40 @@ public class AdManager : MonoBehaviour
 
     public void HandleRewardedAdLoaded(object sender, EventArgs args)
     {
-        MonoBehaviour.print("HandleRewardedAdLoaded event received");
+        print("HandleRewardedAdLoaded event received");
     }
 
     public void HandleRewardedAdFailedToLoad(object sender, AdErrorEventArgs args)
     {
-        MonoBehaviour.print(
-            "HandleRewardedAdFailedToLoad event received with message: "
-            + args.AdError.GetMessage());
+        print("HandleRewardedAdFailedToLoad event received with message: "
+              + args.AdError.GetMessage());
         // RequestAdmobRewarded();
     }
 
     public void HandleRewardedAdOpening(object sender, EventArgs args)
     {
-        MonoBehaviour.print("HandleRewardedAdOpening event received");
+        print("HandleRewardedAdOpening event received");
         // RequestAdmobRewarded();
     }
 
     public void HandleRewardedAdFailedToShow(object sender, AdErrorEventArgs args)
     {
-        MonoBehaviour.print(
-            "HandleRewardedAdFailedToShow event received with message: "
-            + args.AdError.GetMessage());
+        print("HandleRewardedAdFailedToShow event received with message: "
+              + args.AdError.GetMessage());
 
         //  RequestAdmobRewarded();
     }
 
-    public void HandleRewardedAdClosed(object sender, System.EventArgs args)
+    public void HandleRewardedAdClosed(object sender, EventArgs args)
     {
-        MonoBehaviour.print("HandleRewardedAdClosed event received");
+        print("HandleRewardedAdClosed event received");
         RequestAdmobRewarded();
 
     }
 
     public void HandleUserEarnedReward(object sender, Reward args)
     {
-        string type = args.Type;
-        double amount = args.Amount;
-     
-        //PlayerPrefs.SetInt("WatchYes", 1);
-        //ShowFreeCoins();
-       
+        // Todo: After successfully watching rewarded video, give reward to user.
     }
 
     #endregion
@@ -301,7 +313,7 @@ public class AdManager : MonoBehaviour
         }
     }
 
-    public void ShowAdmobInterstial()
+    public void ShowAdmobInterstitial()
     {
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
         {
@@ -315,6 +327,7 @@ public class AdManager : MonoBehaviour
             }
         }
     }
+    
     public void ShowAdmobRewardedVideo()
     {
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
