@@ -30,6 +30,7 @@ public class AdManager : MonoBehaviour
     public string androidBannerId = "ca-app-pub-3940256099942544/6300978111";
     public string iosBannerId = "ca-app-pub-3940256099942544/2934735716";
     [HideInInspector] public string bannerId;
+    [HideInInspector] public bool isBannerLoaded = false;
     private bool isBannerVisible = false;
     [Space(10)]
     
@@ -45,9 +46,9 @@ public class AdManager : MonoBehaviour
     public string iosRewardedVideoId = "ca-app-pub-3940256099942544/1712485313";
     [HideInInspector] public string rewardedVideoId;
     
-     private BannerView bannerView;
-    // private InterstitialAd interstitial;
-    // private RewardedAd rewardedAd;
+     public BannerView bannerView;
+     public InterstitialAd interstitial;
+     public RewardedAd rewardedAd;
 
     #region Singleton
 
@@ -90,8 +91,8 @@ public class AdManager : MonoBehaviour
         MobileAdsEventExecutor.ExecuteInUpdate(() =>
         {
             RequestBanner();
-            // interstitial = RequestInterstitial();
-            // rewardedAd = RequestAdmobRewarded();
+            RequestInterstitial();
+            RequestAdmobRewarded();
             // RequestNativeBanner();
         });
     }
@@ -101,7 +102,7 @@ public class AdManager : MonoBehaviour
     {
         return new AdRequest.Builder().Build();
     }
-    public InterstitialAd RequestInterstitial()
+    public void RequestInterstitial()
     {
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
         {
@@ -113,23 +114,20 @@ public class AdManager : MonoBehaviour
             // }
 
             // Create an interstitial.
-            var interstitial = new InterstitialAd(interstitialId);
+            interstitial = new InterstitialAd(interstitialId);
 
             // Register for ad events.
-            interstitial.OnAdLoaded += this.HandleOnAdLoaded;
-            interstitial.OnAdFailedToLoad += this.HandleOnAdFailedToLoad;
-            interstitial.OnAdOpening += this.HandleOnAdOpened;
-            interstitial.OnAdClosed += this.HandleOnAdClosed;
+            // interstitial.OnAdLoaded += this.HandleOnAdLoaded;
+            // interstitial.OnAdFailedToLoad += this.HandleOnAdFailedToLoad;
+            // interstitial.OnAdOpening += this.HandleOnAdOpened;
+             interstitial.OnAdClosed += this.HandleOnAdClosed;
             // this.interstitial. += this.HandleOnAdLeavingApplication;
 
             // Load an interstitial ad.
             interstitial.LoadAd(this.CreateAdRequest());
 
-            return interstitial;
         }
         
-        return new InterstitialAd(interstitialId);
-
     }
     public void RequestBanner()
     {
@@ -149,7 +147,7 @@ public class AdManager : MonoBehaviour
             bannerView.OnAdFailedToLoad += this.HandleAdFailedToLoad;
             bannerView.OnAdOpening += this.HandleAdOpened;
             bannerView.OnAdClosed += this.HandleAdClosed;
-            //this.bannerView.OnAdLeavingApplication += this.HandleAdLeftApplication;
+            // bannerView.OnAdLeavingApplication += this.HandleAdLeftApplication;
 
             // Load a banner ad.
             bannerView.LoadAd(this.CreateAdRequest());
@@ -158,34 +156,35 @@ public class AdManager : MonoBehaviour
         }
     }
     
-    private RewardedAd RequestAdmobRewarded()
+    private void RequestAdmobRewarded()
     {
 
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
         {
-            var rewardedAd = new RewardedAd(rewardedVideoId);
+            rewardedAd = new RewardedAd(rewardedVideoId);
 
             // Called when an ad request has successfully loaded.
-            rewardedAd.OnAdLoaded += HandleRewardedAdLoaded;
+            // rewardedAd.OnAdLoaded += HandleRewardedAdLoaded;
+            
             // Called when an ad request failed to load.
-            //      this.rewardedAd.OnAdFailedToLoad += HandleRewardedAdFailedToLoad;
+            // this.rewardedAd.OnAdFailedToLoad += HandleRewardedAdFailedToLoad;
 
             // Called when an ad is shown.
-            rewardedAd.OnAdOpening += HandleRewardedAdOpening;
+            // rewardedAd.OnAdOpening += HandleRewardedAdOpening;
+            
             // Called when an ad request failed to show.
-            rewardedAd.OnAdFailedToShow += HandleRewardedAdFailedToShow;
+            // rewardedAd.OnAdFailedToShow += HandleRewardedAdFailedToShow;
+            
             // Called when the user should be rewarded for interacting with the ad.
-            rewardedAd.OnUserEarnedReward += HandleUserEarnedReward;
+            // rewardedAd.OnUserEarnedReward += HandleUserEarnedReward;
+            
             // Called when the ad is closed.
             rewardedAd.OnAdClosed += HandleRewardedAdClosed;
 
 
             // Load the rewarded ad with the request.
             rewardedAd.LoadAd(this.CreateAdRequest());
-
-            return rewardedAd;
         }
-        return new RewardedAd(rewardedVideoId);
     }
     #endregion
     
@@ -194,6 +193,7 @@ public class AdManager : MonoBehaviour
     public void HandleAdLoaded(object sender, EventArgs args)
     {
         print("HandleAdLoaded event received");
+        isBannerLoaded = true;
     }
 
     public void HandleAdFailedToLoad(object sender, AdFailedToLoadEventArgs args)
@@ -209,6 +209,7 @@ public class AdManager : MonoBehaviour
     public void HandleAdClosed(object sender, EventArgs args)
     {
         print("HandleAdClosed event received");
+        isBannerLoaded = false;
     }
 
     public void HandleAdLeftApplication(object sender, EventArgs args)
@@ -301,7 +302,7 @@ public class AdManager : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
         {
-            if (!isBannerVisible && bannerView != null)
+            if (isBannerLoaded && bannerView != null && !isBannerVisible)
             {
                 bannerView.Show();
                 isBannerVisible = true;
@@ -312,7 +313,7 @@ public class AdManager : MonoBehaviour
     {
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
         {
-            if (isBannerVisible && bannerView != null)
+            if (isBannerLoaded && isBannerVisible && bannerView != null)
             {
                 bannerView.Hide();
                 isBannerVisible = false;
@@ -320,39 +321,34 @@ public class AdManager : MonoBehaviour
         }
     }
 
-    public InterstitialAd ShowAdmobInterstitial(InterstitialAd interstitial)
+    public void ShowAdmobInterstitial()
     {
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
         {
             if (interstitial.IsLoaded())
             {
                interstitial.Show();
-               return interstitial;
             }
             else
             {
-              return RequestInterstitial();
+              RequestInterstitial();
             }
         }
-
-        return new InterstitialAd(interstitialId);
     }
     
-    public RewardedAd ShowAdmobRewardedVideo(RewardedAd rewardedAd)
+    public void ShowAdmobRewardedVideo()
     {
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
         {
             if (rewardedAd.IsLoaded())
             {
                 rewardedAd.Show();
-                return rewardedAd;
             }
             else
             {    
-                return RequestAdmobRewarded();
+                RequestAdmobRewarded();
             }
         }
-        return new RewardedAd(rewardedVideoId);
     }
     #endregion
     

@@ -17,7 +17,6 @@ public class HomeScene : MonoBehaviour
     
     public void OnInterstitialButtonPressed()
     {
-        // Open the Interstitial scene
         SceneManager.LoadScene("Scenes/Interstitial");
     }
 

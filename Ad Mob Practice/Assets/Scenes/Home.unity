@@ -199,6 +199,49 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 59186802}
   m_CullTransparentMesh: 0
+--- !u!1 &124276037
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 124276039}
+  - component: {fileID: 124276038}
+  m_Layer: 0
+  m_Name: Home Scene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &124276038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124276037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7beaff756f9b4b445ba268183e1d0636, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &124276039
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 124276037}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 353.0954, y: 1548.8143, z: -132.52837}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &206952711
 GameObject:
   m_ObjectHideFlags: 0
@@ -211,7 +254,6 @@ GameObject:
   - component: {fileID: 206952715}
   - component: {fileID: 206952714}
   - component: {fileID: 206952713}
-  - component: {fileID: 206952716}
   m_Layer: 5
   m_Name: ShowBannerButton
   m_TagString: Untagged
@@ -282,7 +324,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 519420030}
+      - m_Target: {fileID: 124276038}
         m_MethodName: OnShowBannerButtonPressed
         m_Mode: 1
         m_Arguments:
@@ -330,18 +372,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 206952711}
   m_CullTransparentMesh: 0
---- !u!114 &206952716
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 206952711}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2663d6d8cd757844996fd4b142cc34f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &345678571
 GameObject:
   m_ObjectHideFlags: 0
@@ -390,6 +420,7 @@ MonoBehaviour:
   androidBannerId: ca-app-pub-3940256099942544/6300978111
   iosBannerId: ca-app-pub-3940256099942544/2934735716
   bannerId: 
+  isBannerLoaded: 0
   androidInterstitialId: ca-app-pub-3940256099942544/1033173712
   iosInterstitialId: ca-app-pub-3940256099942544/4411468910
   interstitialId: 
@@ -430,7 +461,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -113}
+  m_AnchoredPosition: {x: 0, y: -143}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &375214465
@@ -465,7 +496,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: Ad Mob Practice
+  m_Text: 'Ad Mob Practice
+
+    Home'
 --- !u!222 &375214466
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -486,7 +519,6 @@ GameObject:
   - component: {fileID: 393562571}
   - component: {fileID: 393562570}
   - component: {fileID: 393562569}
-  - component: {fileID: 393562572}
   m_Layer: 5
   m_Name: RewardedButton
   m_TagString: Untagged
@@ -556,7 +588,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 393562570}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 124276038}
+        m_MethodName: OnRewardedButtonPressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &393562570
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -594,18 +637,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 393562567}
   m_CullTransparentMesh: 0
---- !u!114 &393562572
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 393562567}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd20ad3875f5ba046b0d1d648c5b51cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -617,7 +648,6 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
-  - component: {fileID: 519420030}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -633,18 +663,6 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
---- !u!114 &519420030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 519420028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7beaff756f9b4b445ba268183e1d0636, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -817,7 +835,6 @@ GameObject:
   - component: {fileID: 871793195}
   - component: {fileID: 871793194}
   - component: {fileID: 871793193}
-  - component: {fileID: 871793196}
   m_Layer: 5
   m_Name: InterstitialButton
   m_TagString: Untagged
@@ -887,7 +904,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 871793194}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 124276038}
+        m_MethodName: OnInterstitialButtonPressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &871793194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -925,18 +953,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 871793191}
   m_CullTransparentMesh: 0
---- !u!114 &871793196
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 871793191}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38da5c9f7dba1aa43942a2c74d85ce34, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1266369989
 GameObject:
   m_ObjectHideFlags: 0
@@ -1105,7 +1121,6 @@ GameObject:
   - component: {fileID: 1707116217}
   - component: {fileID: 1707116216}
   - component: {fileID: 1707116215}
-  - component: {fileID: 1707116214}
   m_Layer: 5
   m_Name: HideBannerButton
   m_TagString: Untagged
@@ -1133,18 +1148,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 280}
   m_SizeDelta: {x: 404.9, y: 135.9}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1707116214
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1707116212}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2663d6d8cd757844996fd4b142cc34f5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1707116215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1188,7 +1191,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 519420030}
+      - m_Target: {fileID: 124276038}
         m_MethodName: OnHideBannerButtonPressed
         m_Mode: 1
         m_Arguments:
