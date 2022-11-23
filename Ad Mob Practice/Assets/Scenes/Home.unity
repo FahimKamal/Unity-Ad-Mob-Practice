@@ -415,16 +415,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92c37429d62d5cf4092b8dad18419a45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  androidAppId: ca-app-pub-3940256099942544/3419835294
+  androidAppId: ca-app-pub-4469120089777457~2596302854
   iosAppId: ca-app-pub-3940256099942544/5662855259
-  androidBannerId: ca-app-pub-3940256099942544/6300978111
+  androidBannerId: ca-app-pub-4469120089777457/7046807465
   iosBannerId: ca-app-pub-3940256099942544/2934735716
   bannerId: 
   isBannerLoaded: 0
-  androidInterstitialId: ca-app-pub-3940256099942544/1033173712
+  androidInterstitialId: ca-app-pub-4469120089777457/9834636803
   iosInterstitialId: ca-app-pub-3940256099942544/4411468910
   interstitialId: 
-  androidRewardedVideoId: ca-app-pub-3940256099942544/5224354917
+  androidRewardedVideoId: ca-app-pub-4469120089777457/9531879317
   iosRewardedVideoId: ca-app-pub-3940256099942544/1712485313
   rewardedVideoId: 
 --- !u!1 &375214463
