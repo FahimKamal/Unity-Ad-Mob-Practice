@@ -1,13 +1,19 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class InterstitialScene : MonoBehaviour
 {
+    private void Start()
+    {
+        AdManager.Instance.GetfpsMeter();
+    }
+
     public void OnInterstitialButtonPressed()
     {
-        AdManager.Instance.ShowAdmobInterstitial();
+        AdManager.Instance.ShowInterstitialAd();
         Debug.Log("Interstitial button pressed");
     }
     

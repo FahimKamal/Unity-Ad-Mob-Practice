@@ -1,9 +1,15 @@
-﻿using GoogleMobileAds.Api;
+﻿using System;
+using GoogleMobileAds.Api;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class RewardScene : MonoBehaviour
 {
+    private void Start()
+    {
+        AdManager.Instance.GetfpsMeter();
+    }
+
     public void OnBackButtonPressed()
     {
         SceneManager.LoadScene("Scenes/Home");
@@ -12,19 +18,19 @@ public class RewardScene : MonoBehaviour
     public void OnReward100ButtonPressed()
     {
         AdManager.Instance.rewardedAd.OnUserEarnedReward += For100Reward;
-        AdManager.Instance.ShowAdmobRewardedVideo();
+        AdManager.Instance.ShowRewardedAd();
     }
     
     public void OnReward200ButtonPressed()
     {
         AdManager.Instance.rewardedAd.OnUserEarnedReward += For200Reward;
-        AdManager.Instance.ShowAdmobRewardedVideo();
+        AdManager.Instance.ShowRewardedAd();
     }
     
     public void OnReward300ButtonPressed()
     {
         AdManager.Instance.rewardedAd.OnUserEarnedReward += For300Reward;
-        AdManager.Instance.ShowAdmobRewardedVideo();
+        AdManager.Instance.ShowRewardedAd();
     }
 
 

@@ -2,6 +2,8 @@
 using UnityEngine;
 using GoogleMobileAds.Api;
 using GoogleMobileAds.Common;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class AdManager : MonoBehaviour
 {
@@ -20,11 +22,6 @@ public class AdManager : MonoBehaviour
     /// </summary>
     
     public static AdManager Instance;
-    
-    [Header("App ID's for Admob")]
-    public string androidAppId = "ca-app-pub-3940256099942544/3419835294";
-    public string iosAppId = "ca-app-pub-3940256099942544/5662855259";
-    [Space(10)]
     
     [Header("Banner ID's for Admob")]
     public string androidBannerId = "ca-app-pub-3940256099942544/6300978111";
@@ -46,9 +43,21 @@ public class AdManager : MonoBehaviour
     public string iosRewardedVideoId = "ca-app-pub-3940256099942544/1712485313";
     [HideInInspector] public string rewardedVideoId;
     
-     public BannerView bannerView;
-     public InterstitialAd interstitial;
-     public RewardedAd rewardedAd;
+    private float deltaTime;
+    public bool showFpsMeter = true;
+    public Text fpsMeter;
+    public Text statusText;
+    
+    public UnityEvent OnAdLoadedEvent;
+    public UnityEvent OnAdFailedToLoadEvent;
+    public UnityEvent OnAdOpeningEvent;
+    public UnityEvent OnAdFailedToShowEvent;
+    public UnityEvent OnUserEarnedRewardEvent;
+    public UnityEvent OnAdClosedEvent;
+    
+    public BannerView bannerView;
+    public InterstitialAd interstitialAd;
+    public RewardedAd rewardedAd;
 
     #region Singleton
 
@@ -60,9 +69,16 @@ public class AdManager : MonoBehaviour
         }
         else
         {
+            GetfpsMeter();
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
+    }
+
+    public void GetfpsMeter()
+    {
+        fpsMeter = GameObject.Find("fpsMeter").GetComponent<Text>();
+        statusText = GameObject.Find("txtEvents").GetComponent<Text>();
     }
 
     #endregion
@@ -70,7 +86,13 @@ public class AdManager : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        #if UNITY_ANDROID
+        
+        
+        #if UNITY_EDITOR
+                bannerId = "unused";
+                interstitialId = "unused";
+                rewardedVideoId = "unused";
+        #elif UNITY_ANDROID
                 bannerId = androidBannerId;
                 interstitialId = androidInterstitialId;
                 rewardedVideoId = androidRewardedVideoId;
@@ -78,6 +100,10 @@ public class AdManager : MonoBehaviour
                 bannerId = iosBannerId;
                 interstitialId = iosInterstitialId;
                 rewardedVideoId = iosRewardedVideoId;
+        #else
+                bannerId = "unexpected_platform";
+                interstitialId = "unexpected_platform";
+                rewardedVideoId = "unexpected_platform";
         #endif
         
         MobileAds.SetiOSAppPauseOnBackground(true);
@@ -90,214 +116,93 @@ public class AdManager : MonoBehaviour
     {
         MobileAdsEventExecutor.ExecuteInUpdate(() =>
         {
-            RequestBanner();
-            RequestInterstitial();
-            RequestAdmobRewarded();
+            RequestBannerAd();
+            RequestAndLoadInterstitialAd();
+            RequestAndLoadRewardedAd();
             // RequestNativeBanner();
         });
     }
     
-     #region Request Ads
+    private void Update()
+    {
+        if (showFpsMeter)
+        {
+            fpsMeter.gameObject.SetActive(true);
+            deltaTime += (Time.deltaTime - deltaTime) * 0.1f;
+            float fps = 1.0f / deltaTime;
+            fpsMeter.text = string.Format("{0:0.} fps", fps);
+        }
+        else
+        {
+            fpsMeter.gameObject.SetActive(false);
+        }
+    }
+    
     public AdRequest CreateAdRequest()
     {
         return new AdRequest.Builder().Build();
     }
-    public void RequestInterstitial()
+    
+    #region BANNER ADS
+
+    public void RequestBannerAd()
     {
-        if (PlayerPrefs.GetInt("RemoveAds") == 0)
+        PrintStatus("Requesting Banner ad.");
+        // Clean up banner before reusing
+        if (bannerView != null)
         {
-            // Clean up interstitial ad before creating a new one.
-            // We might have to shift this if statement to the place where we are calling this function.
-            // if (interstitial != null)
-            // {
-            //     interstitial.Destroy();
-            // }
-
-            // Create an interstitial.
-            interstitial = new InterstitialAd(interstitialId);
-
-            // Register for ad events.
-             interstitial.OnAdLoaded += HandleOnAdLoaded;
-             interstitial.OnAdFailedToLoad += HandleOnAdFailedToLoad;
-             interstitial.OnAdOpening += HandleOnAdOpened;
-             interstitial.OnAdClosed += HandleOnAdClosed;
-            // this.interstitial. += this.HandleOnAdLeavingApplication;
-
-            // Load an interstitial ad.
-            interstitial.LoadAd(CreateAdRequest());
-
+            bannerView.Destroy();
         }
-        
-    }
-    public void RequestBanner()
-    {
-        if (PlayerPrefs.GetInt("RemoveAds") == 0)
+
+        // Create a 320x50 banner at top of the screen
+        bannerView = new BannerView(bannerId, AdSize.Banner, AdPosition.Top);
+
+        // Add Event Handlers
+        bannerView.OnAdLoaded += (sender, args) =>
         {
-            // Clean up banner ad before creating a new one.
-            // We might have to shift this if statement to the place where we are calling this function.
-            if (bannerView != null)
-            {
-                bannerView.Destroy();
-            }
-            // Create a 320x50 banner at the top of the screen.
-            bannerView = new BannerView(bannerId, AdSize.Banner, AdPosition.Top);
+            PrintStatus("Banner ad loaded.");
+            isBannerLoaded = true;
+            OnAdLoadedEvent.Invoke();
+        };
+        bannerView.OnAdFailedToLoad += (sender, args) =>
+        {
+            PrintStatus("Banner ad failed to load with error: "+args.LoadAdError.GetMessage());
+            OnAdFailedToLoadEvent.Invoke();
+        };
+        bannerView.OnAdOpening += (sender, args) =>
+        {
+            PrintStatus("Banner ad opening.");
+            OnAdOpeningEvent.Invoke();
+        };
+        bannerView.OnAdClosed += (sender, args) =>
+        {
+            isBannerLoaded = false;
+            PrintStatus("Banner ad closed.");
+            RequestBannerAd();
+            OnAdClosedEvent.Invoke();
+        };
+        bannerView.OnPaidEvent += (sender, args) =>
+        {
+            string msg = string.Format("{0} (currency: {1}, value: {2}",
+                "Banner ad received a paid event.",
+                args.AdValue.CurrencyCode,
+                args.AdValue.Value);
+            PrintStatus(msg);
+        };
 
-            // Register for ad events.
-            bannerView.OnAdLoaded += HandleAdLoaded;
-            bannerView.OnAdFailedToLoad += HandleAdFailedToLoad;
-            bannerView.OnAdOpening += HandleAdOpened;
-            bannerView.OnAdClosed += HandleAdClosed;
-            // bannerView.OnAdLeavingApplication += this.HandleAdLeftApplication;
-
-            // Load a banner ad.
-            bannerView.LoadAd(this.CreateAdRequest());
-            bannerView.Hide();
-            print("Show Top Banner");
-        }
+        // Load a banner ad
+        bannerView.LoadAd(CreateAdRequest());
+        bannerView.Hide();
     }
     
-    private void RequestAdmobRewarded()
+    public void DestroyBannerAd()
     {
-
-        if (PlayerPrefs.GetInt("RemoveAds") == 0)
+        if (bannerView != null)
         {
-            rewardedAd = new RewardedAd(rewardedVideoId);
-
-            // Called when an ad request has successfully loaded.
-             rewardedAd.OnAdLoaded += HandleRewardedAdLoaded;
-            
-            // Called when an ad request failed to load.
-             rewardedAd.OnAdFailedToLoad += HandleRewardedAdFailedToLoad;
-
-            // Called when an ad is shown.
-             rewardedAd.OnAdOpening += HandleRewardedAdOpening;
-            
-            // Called when an ad request failed to show.
-             rewardedAd.OnAdFailedToShow += HandleRewardedAdFailedToShow;
-            
-            // Called when the user should be rewarded for interacting with the ad.
-            // rewardedAd.OnUserEarnedReward += HandleUserEarnedReward;
-            
-            // Called when the ad is closed.
-            rewardedAd.OnAdClosed += HandleRewardedAdClosed;
-
-
-            // Load the rewarded ad with the request.
-            rewardedAd.LoadAd(this.CreateAdRequest());
+            bannerView.Destroy();
         }
     }
-    #endregion
     
-    #region Banner callback handlers
-
-    public void HandleAdLoaded(object sender, EventArgs args)
-    {
-        print("HandleAdLoaded event received");
-        isBannerLoaded = true;
-    }
-
-    public void HandleAdFailedToLoad(object sender, AdFailedToLoadEventArgs args)
-    {
-        print("HandleFailedToReceiveAd event received with message: " + args.LoadAdError);
-    }
-
-    public void HandleAdOpened(object sender, EventArgs args)
-    {
-        print("HandleAdOpened event received");
-    }
-
-    public void HandleAdClosed(object sender, EventArgs args)
-    {
-        print("HandleAdClosed event received");
-        isBannerLoaded = false;
-    }
-
-    public void HandleAdLeftApplication(object sender, EventArgs args)
-    {
-        print("HandleAdLeftApplication event received");
-    }
-
-    #endregion
-    
-    
-    #region Interstial callback handlers 
-    public void HandleOnAdLoaded(object sender, EventArgs args)
-    {
-        print("HandleAdLoaded event received");
-    }
-
-    public void HandleOnAdFailedToLoad(object sender, AdFailedToLoadEventArgs args)
-    {
-        print("HandleFailedToReceiveAd event received with message: "
-                            + args);
-        RequestInterstitial();
-    }
-
-    public void HandleOnAdOpened(object sender, EventArgs args)
-    {
-        print("HandleAdOpened event received");
-
-    }
-
-    public void HandleOnAdClosed(object sender, EventArgs args)
-    {
-        print("HandleAdClosed event received");
-        RequestInterstitial();
-
-    }
-
-    public void HandleOnAdLeavingApplication(object sender, EventArgs args)
-    {
-        print("HandleAdLeavingApplication event received");
-    }
-    #endregion
-    
-    
-    #region AdmobRewarded_Ad callback handlers
-
-    public void HandleRewardedAdLoaded(object sender, EventArgs args)
-    {
-        print("HandleRewardedAdLoaded event received");
-    }
-
-    public void HandleRewardedAdFailedToLoad(object sender, AdFailedToLoadEventArgs adFailedToLoadEventArgs)
-    {
-        print("HandleRewardedAdFailedToLoad event received with message: "
-              + adFailedToLoadEventArgs);
-        // RequestAdmobRewarded();
-    }
-
-    public void HandleRewardedAdOpening(object sender, EventArgs args)
-    {
-        print("HandleRewardedAdOpening event received");
-        // RequestAdmobRewarded();
-    }
-
-    public void HandleRewardedAdFailedToShow(object sender, AdErrorEventArgs args)
-    {
-        print("HandleRewardedAdFailedToShow event received with message: "
-              + args.AdError.GetMessage());
-
-        //  RequestAdmobRewarded();
-    }
-
-    public void HandleRewardedAdClosed(object sender, EventArgs args)
-    {
-        print("HandleRewardedAdClosed event received");
-        RequestAdmobRewarded();
-
-    }
-
-    public void HandleUserEarnedReward(object sender, Reward args)
-    {
-        // Todo: After successfully watching rewarded video, give reward to user.
-    }
-
-    #endregion
-    
-    
-    
-    #region  Ads Call Function
     public void ShowTopBanner()
     {
         if (PlayerPrefs.GetInt("RemoveAds") == 0)
@@ -321,35 +226,220 @@ public class AdManager : MonoBehaviour
         }
     }
 
-    public void ShowAdmobInterstitial()
+    #endregion
+
+    #region INTERSTITIAL ADS
+
+    public void RequestAndLoadInterstitialAd()
     {
-        if (PlayerPrefs.GetInt("RemoveAds") == 0)
+        PrintStatus("Requesting Interstitial ad.");
+
+        // Clean up interstitial before using it
+        if (interstitialAd != null)
         {
-            if (interstitial.IsLoaded())
-            {
-               interstitial.Show();
-            }
-            else
-            {
-              RequestInterstitial();
-            }
+            interstitialAd.Destroy();
+        }
+
+        interstitialAd = new InterstitialAd(interstitialId);
+
+        // Add Event Handlers
+        interstitialAd.OnAdLoaded += (sender, args) =>
+        {
+            PrintStatus("Interstitial ad loaded.");
+            OnAdLoadedEvent.Invoke();
+        };
+        interstitialAd.OnAdFailedToLoad += (sender, args) =>
+        {
+            PrintStatus("Interstitial ad failed to load with error: "+args.LoadAdError.GetMessage());
+            RequestAndLoadInterstitialAd();
+            OnAdFailedToLoadEvent.Invoke();
+        };
+        interstitialAd.OnAdOpening += (sender, args) =>
+        {
+            PrintStatus("Interstitial ad opening.");
+            OnAdOpeningEvent.Invoke();
+        };
+        interstitialAd.OnAdClosed += (sender, args) =>
+        {
+            PrintStatus("Interstitial ad closed.");
+            RequestAndLoadInterstitialAd();
+            OnAdClosedEvent.Invoke();
+        };
+        interstitialAd.OnAdDidRecordImpression += (sender, args) =>
+        {
+            PrintStatus("Interstitial ad recorded an impression.");
+        };
+        interstitialAd.OnAdFailedToShow += (sender, args) =>
+        {
+            PrintStatus("Interstitial ad failed to show.");
+        };
+        interstitialAd.OnPaidEvent += (sender, args) =>
+        {
+            string msg = string.Format("{0} (currency: {1}, value: {2}",
+                                        "Interstitial ad received a paid event.",
+                                        args.AdValue.CurrencyCode,
+                                        args.AdValue.Value);
+            PrintStatus(msg);
+        };
+
+        // Load an interstitial ad
+        interstitialAd.LoadAd(CreateAdRequest());
+    }
+
+    public void ShowInterstitialAd()
+    {
+        if (interstitialAd != null && interstitialAd.IsLoaded())
+        {
+            interstitialAd.Show();
+        }
+        else
+        {
+            PrintStatus("Interstitial ad is not ready yet.");
         }
     }
-    
-    public void ShowAdmobRewardedVideo()
+
+    public void DestroyInterstitialAd()
     {
-        if (PlayerPrefs.GetInt("RemoveAds") == 0)
+        if (interstitialAd != null)
+        {
+            interstitialAd.Destroy();
+        }
+    }
+
+    #endregion
+    
+    #region REWARDED ADS
+
+    public void RequestAndLoadRewardedAd()
+    {
+        PrintStatus("Requesting Rewarded ad.");
+
+        // create new rewarded ad instance
+        rewardedAd = new RewardedAd(rewardedVideoId);
+
+        // Add Event Handlers
+        rewardedAd.OnAdLoaded += (sender, args) =>
+        {
+            PrintStatus("Reward ad loaded.");
+            OnAdLoadedEvent.Invoke();
+        };
+        rewardedAd.OnAdFailedToLoad += (sender, args) =>
+        {
+            PrintStatus("Reward ad failed to load.");
+            RequestAndLoadRewardedAd();
+            OnAdFailedToLoadEvent.Invoke();
+        };
+        rewardedAd.OnAdOpening += (sender, args) =>
+        {
+            PrintStatus("Reward ad opening.");
+            OnAdOpeningEvent.Invoke();
+        };
+        rewardedAd.OnAdFailedToShow += (sender, args) =>
+        {
+            PrintStatus("Reward ad failed to show with error: "+args.AdError.GetMessage());
+            RequestAndLoadRewardedAd();
+            OnAdFailedToShowEvent.Invoke();
+        };
+        rewardedAd.OnAdClosed += (sender, args) =>
+        {
+            PrintStatus("Reward ad closed.");
+            RequestAndLoadRewardedAd();
+            OnAdClosedEvent.Invoke();
+        };
+        rewardedAd.OnUserEarnedReward += (sender, args) =>
+        {
+            PrintStatus("User earned Reward ad reward: "+args.Amount);
+            OnUserEarnedRewardEvent.Invoke();
+            RequestAndLoadRewardedAd();
+        };
+        rewardedAd.OnAdDidRecordImpression += (sender, args) =>
+        {
+            PrintStatus("Reward ad recorded an impression.");
+        };
+        rewardedAd.OnPaidEvent += (sender, args) =>
+        {
+            string msg = string.Format("{0} (currency: {1}, value: {2}",
+                                        "Rewarded ad received a paid event.",
+                                        args.AdValue.CurrencyCode,
+                                        args.AdValue.Value);
+            PrintStatus(msg);
+        };
+
+        // Create empty ad request
+        rewardedAd.LoadAd(CreateAdRequest());
+    }
+
+    public void ShowRewardedAd()
+    {
+        if (rewardedAd != null)
         {
             if (rewardedAd.IsLoaded())
             {
                 rewardedAd.Show();
             }
             else
-            {    
-                RequestAdmobRewarded();
+            {
+                PrintStatus("Reward ad is not ready yet.");
             }
         }
+        else
+        {
+            RequestAndLoadRewardedAd();
+        }
     }
+
+    #endregion
+    
+  
+    
+    #region  Ads Call Function
+    
+
+    // public void ShowAdmobInterstitial()
+    // {
+    //     if (PlayerPrefs.GetInt("RemoveAds") == 0)
+    //     {
+    //         if (interstitial.IsLoaded())
+    //         {
+    //            interstitial.Show();
+    //         }
+    //         else
+    //         {
+    //           RequestInterstitial();
+    //         }
+    //     }
+    // }
+    
+    // public void ShowAdmobRewardedVideo()
+    // {
+    //     if (PlayerPrefs.GetInt("RemoveAds") == 0)
+    //     {
+    //         if (rewardedAd.IsLoaded())
+    //         {
+    //             rewardedAd.Show();
+    //         }
+    //         else
+    //         {    
+    //             RequestAdmobRewarded();
+    //         }
+    //     }
+    // }
+    #endregion
+
+    #region Utility
+
+    ///<summary>
+    /// Log the message and update the status text on the main thread.
+    ///<summary>
+    private void PrintStatus(string message)
+    {
+        Debug.Log(message);
+        MobileAdsEventExecutor.ExecuteInUpdate(() =>
+        {
+            statusText.text = message;
+        });
+    }
+
     #endregion
     
 }
