@@ -2,9 +2,23 @@
 using GoogleMobileAds.Api;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class RewardScene : MonoBehaviour
 {
+    private int rewardCoin = 0;
+    [SerializeField] private Text rewardCoinTxt;
+
+    public int RewardCoin
+    {
+        get => rewardCoin;
+        set
+        {
+            rewardCoin = value;
+            rewardCoinTxt.text = rewardCoin.ToString();
+        }
+    }
+    
     private void Start()
     {
         AdManager.Instance.GetfpsMeter();
@@ -17,19 +31,22 @@ public class RewardScene : MonoBehaviour
     
     public void OnReward100ButtonPressed()
     {
-        AdManager.Instance.TestFunction = For100Reward;
+        AdManager.Instance.OnRewardAdClosedEvent.RemoveAllListeners();
+        AdManager.Instance.OnRewardAdClosedEvent.AddListener(For100Reward);
         AdManager.Instance.ShowRewardedAd();
     }
     
     public void OnReward200ButtonPressed()
     {
-        AdManager.Instance.TestFunction = For200Reward;
+        AdManager.Instance.OnRewardAdClosedEvent.RemoveAllListeners();
+        AdManager.Instance.OnRewardAdClosedEvent.AddListener(For200Reward);
         AdManager.Instance.ShowRewardedAd();
     }
     
     public void OnReward300ButtonPressed()
     {
-        AdManager.Instance.TestFunction = For300Reward;
+        AdManager.Instance.OnRewardAdClosedEvent.RemoveAllListeners();
+        AdManager.Instance.OnRewardAdClosedEvent.AddListener(For300Reward);
         AdManager.Instance.ShowRewardedAd();
     }
     
@@ -38,22 +55,29 @@ public class RewardScene : MonoBehaviour
         AdManager.Instance.RequestAndLoadRewardedAd();
     }
 
-
-    void For100Reward()
+    public void OnShowPopupButtonPressed()
+    {
+        PopupManager.Instance.ShowPopup("Popup", "Here's your fucking Popup.");
+    }
+    
+    private void For100Reward()
     {
         Debug.Log("Reward 100 button pressed");
         PopupManager.Instance.ShowPopup("Ad Showed", "Reward 100 button pressed");
+        RewardCoin += 100;
     }
-    
-    void For200Reward()
+
+    private void For200Reward()
     {
         Debug.Log("Reward 200 button pressed");
         PopupManager.Instance.ShowPopup("Ad Showed", "Reward 200 button pressed");
+        RewardCoin += 200;
     }
-    
-    void For300Reward()
+
+    private void For300Reward()
     {
         Debug.Log("Reward 300 button pressed");
         PopupManager.Instance.ShowPopup("Ad Showed", "Reward 300 button pressed");
+        RewardCoin += 300;
     }
 }

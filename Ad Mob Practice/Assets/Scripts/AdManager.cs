@@ -68,14 +68,13 @@ public class AdManager : MonoBehaviour
     [SerializeField, ShowIf(ActionOnConditionFail.DONT_DRAW, ConditionOperator.AND, nameof(showFpsMeter) )]
     private Text statusText;
 
-    public Action TestFunction;
-    
     public UnityEvent OnAdLoadedEvent;
     public UnityEvent OnAdFailedToLoadEvent;
     public UnityEvent OnAdOpeningEvent;
     public UnityEvent OnAdFailedToShowEvent;
     public UnityEvent OnUserEarnedRewardEvent;
     public UnityEvent OnAdClosedEvent;
+    public UnityEvent OnRewardAdClosedEvent;
     
     public BannerView bannerView;
     public InterstitialAd interstitialAd;
@@ -367,15 +366,13 @@ public class AdManager : MonoBehaviour
         rewardedAd.OnAdClosed += (sender, args) =>
         {
             PrintStatus("Reward ad closed.");
-            OnAdClosedEvent.Invoke();
-            TestFunction!.Invoke();
+            OnRewardAdClosedEvent.Invoke();
             PrintStatus("User earned Reward ad reward: ");
             
             RequestAndLoadRewardedAd();
         };
         rewardedAd.OnUserEarnedReward += (sender, args) =>
         {
-            TestFunction!.Invoke();
             PrintStatus("User earned Reward ad reward: "+args.Amount);
             OnUserEarnedRewardEvent.Invoke();
             RequestAndLoadRewardedAd();
