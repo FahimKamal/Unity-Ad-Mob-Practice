@@ -17,35 +17,43 @@ public class RewardScene : MonoBehaviour
     
     public void OnReward100ButtonPressed()
     {
-        AdManager.Instance.rewardedAd.OnUserEarnedReward += For100Reward;
+        AdManager.Instance.TestFunction = For100Reward;
         AdManager.Instance.ShowRewardedAd();
     }
     
     public void OnReward200ButtonPressed()
     {
-        AdManager.Instance.rewardedAd.OnUserEarnedReward += For200Reward;
+        AdManager.Instance.TestFunction = For200Reward;
         AdManager.Instance.ShowRewardedAd();
     }
     
     public void OnReward300ButtonPressed()
     {
-        AdManager.Instance.rewardedAd.OnUserEarnedReward += For300Reward;
+        AdManager.Instance.TestFunction = For300Reward;
         AdManager.Instance.ShowRewardedAd();
     }
+    
+    public void OnRequestAdButtonPressed()
+    {
+        AdManager.Instance.RequestAndLoadRewardedAd();
+    }
 
 
-    void For100Reward(object sender, Reward args)
+    void For100Reward()
     {
         Debug.Log("Reward 100 button pressed");
+        PopupManager.Instance.ShowPopup("Ad Showed", "Reward 100 button pressed");
     }
     
-    void For200Reward(object sender, Reward args)
+    void For200Reward()
     {
         Debug.Log("Reward 200 button pressed");
+        PopupManager.Instance.ShowPopup("Ad Showed", "Reward 200 button pressed");
     }
     
-    void For300Reward(object sender, Reward args)
+    void For300Reward()
     {
         Debug.Log("Reward 300 button pressed");
+        PopupManager.Instance.ShowPopup("Ad Showed", "Reward 300 button pressed");
     }
 }

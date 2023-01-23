@@ -5,6 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class HomeScene : MonoBehaviour
 {
+    private void Start()
+    {
+        AdManager.Instance.GetfpsMeter();
+    }
     public void OnShowBannerButtonPressed()
     {
         AdManager.Instance.ShowTopBanner();
@@ -23,5 +27,10 @@ public class HomeScene : MonoBehaviour
     public void OnRewardedButtonPressed()
     {
         SceneManager.LoadScene("Scenes/Rewarded");
+    }
+
+    public void OnQuitButtonPressed()
+    {
+        Application.Quit();
     }
 }

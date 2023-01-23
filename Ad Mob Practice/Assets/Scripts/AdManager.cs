@@ -67,6 +67,8 @@ public class AdManager : MonoBehaviour
     private Text fpsMeter;
     [SerializeField, ShowIf(ActionOnConditionFail.DONT_DRAW, ConditionOperator.AND, nameof(showFpsMeter) )]
     private Text statusText;
+
+    public Action TestFunction;
     
     public UnityEvent OnAdLoadedEvent;
     public UnityEvent OnAdFailedToLoadEvent;
@@ -366,9 +368,14 @@ public class AdManager : MonoBehaviour
         {
             PrintStatus("Reward ad closed.");
             OnAdClosedEvent.Invoke();
+            TestFunction!.Invoke();
+            PrintStatus("User earned Reward ad reward: ");
+            
+            RequestAndLoadRewardedAd();
         };
         rewardedAd.OnUserEarnedReward += (sender, args) =>
         {
+            TestFunction!.Invoke();
             PrintStatus("User earned Reward ad reward: "+args.Amount);
             OnUserEarnedRewardEvent.Invoke();
             RequestAndLoadRewardedAd();
