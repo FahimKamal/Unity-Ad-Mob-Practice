@@ -22,31 +22,51 @@ public class AdManager : MonoBehaviour
     /// </summary>
     
     public static AdManager Instance;
+
+    [Header("Banner ID's for Admob")] 
+    [SerializeField]
+    private bool useBanner;
     
-    [Header("Banner ID's for Admob")]
-    public string androidBannerId = "ca-app-pub-3940256099942544/6300978111";
-    public string iosBannerId = "ca-app-pub-3940256099942544/2934735716";
+    [SerializeField, ShowIf(ActionOnConditionFail.DONT_DRAW, ConditionOperator.AND, nameof(useBanner) )]
+    private string androidBannerId = "ca-app-pub-3940256099942544/6300978111";
+    [SerializeField, ShowIf(ActionOnConditionFail.DONT_DRAW, ConditionOperator.AND, nameof(useBanner) )]
+    private string iosBannerId = "ca-app-pub-3940256099942544/2934735716";
+    
     [HideInInspector] public string bannerId;
     [HideInInspector] public bool isBannerLoaded = false;
     private bool isBannerVisible = false;
     [Space(10)]
     
     [Header("Interstitial ID's for Admob")]
-    public string androidInterstitialId = "ca-app-pub-3940256099942544/1033173712";
-    public string iosInterstitialId = "ca-app-pub-3940256099942544/4411468910";
+    [SerializeField]
+    private bool useInterstitialAd;
+    [SerializeField, ShowIf(ActionOnConditionFail.DONT_DRAW, ConditionOperator.AND, nameof(useInterstitialAd) )]
+    private string androidInterstitialId = "ca-app-pub-3940256099942544/1033173712";
+    [SerializeField, ShowIf(ActionOnConditionFail.DONT_DRAW, ConditionOperator.AND, nameof(useInterstitialAd) )]
+    private string iosInterstitialId = "ca-app-pub-3940256099942544/4411468910";
+    
     [HideInInspector] public string interstitialId;
     
     [Space(10)]
     
     [Header("Rewarded ID's for Admob")]
-    public string androidRewardedVideoId = "ca-app-pub-3940256099942544/5224354917";
-    public string iosRewardedVideoId = "ca-app-pub-3940256099942544/1712485313";
+    [SerializeField]
+    private bool useRewardedAd;
+    [SerializeField, ShowIf(ActionOnConditionFail.DONT_DRAW, ConditionOperator.AND, nameof(useRewardedAd) )]
+    private string androidRewardedVideoId = "ca-app-pub-3940256099942544/5224354917";
+    [SerializeField, ShowIf(ActionOnConditionFail.DONT_DRAW, ConditionOperator.AND, nameof(useRewardedAd) )]
+    private string iosRewardedVideoId = "ca-app-pub-3940256099942544/1712485313";
+    
     [HideInInspector] public string rewardedVideoId;
     
-    private float deltaTime;
+    [Space(10)]
+    [Header("FPS Meter")]
     public bool showFpsMeter = true;
-    public Text fpsMeter;
-    public Text statusText;
+    private float deltaTime;
+    [SerializeField, ShowIf(ActionOnConditionFail.DONT_DRAW, ConditionOperator.AND, nameof(showFpsMeter) )]
+    private Text fpsMeter;
+    [SerializeField, ShowIf(ActionOnConditionFail.DONT_DRAW, ConditionOperator.AND, nameof(showFpsMeter) )]
+    private Text statusText;
     
     public UnityEvent OnAdLoadedEvent;
     public UnityEvent OnAdFailedToLoadEvent;
@@ -86,8 +106,6 @@ public class AdManager : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        
-        
         #if UNITY_EDITOR
                 bannerId = "unused";
                 interstitialId = "unused";
@@ -116,9 +134,13 @@ public class AdManager : MonoBehaviour
     {
         MobileAdsEventExecutor.ExecuteInUpdate(() =>
         {
-            RequestBannerAd();
-            RequestAndLoadInterstitialAd();
-            RequestAndLoadRewardedAd();
+            if (useBanner)
+                RequestBannerAd();
+            if (useInterstitialAd)
+                RequestAndLoadInterstitialAd();
+            if (useRewardedAd)
+                RequestAndLoadRewardedAd();
+            
             // RequestNativeBanner();
         });
     }
@@ -343,7 +365,6 @@ public class AdManager : MonoBehaviour
         rewardedAd.OnAdClosed += (sender, args) =>
         {
             PrintStatus("Reward ad closed.");
-            RequestAndLoadRewardedAd();
             OnAdClosedEvent.Invoke();
         };
         rewardedAd.OnUserEarnedReward += (sender, args) =>
@@ -430,7 +451,7 @@ public class AdManager : MonoBehaviour
 
     ///<summary>
     /// Log the message and update the status text on the main thread.
-    ///<summary>
+    ///</summary>
     private void PrintStatus(string message)
     {
         Debug.Log(message);

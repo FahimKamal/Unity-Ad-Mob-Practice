@@ -13,6 +13,7 @@ public class InterstitialScene : MonoBehaviour
 
     public void OnInterstitialButtonPressed()
     {
+        AdManager.Instance.interstitialAd.OnAdClosed += delegate(object sender, EventArgs args) { Debug.Log("Interstitial successfully showed."); };
         AdManager.Instance.ShowInterstitialAd();
         Debug.Log("Interstitial button pressed");
     }

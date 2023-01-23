@@ -425,17 +425,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92c37429d62d5cf4092b8dad18419a45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  androidBannerId: ca-app-pub-6777223472784939/6219280999
+  useBanner: 1
+  androidBannerId: ca-app-pub-3940256099942544/6300978111
   iosBannerId: ca-app-pub-3940256099942544/2934735716
   bannerId: 
   isBannerLoaded: 0
-  androidInterstitialId: ca-app-pub-6777223472784939/2584811131
+  useInterstitialAd: 1
+  androidInterstitialId: ca-app-pub-3940256099942544/1033173712
   iosInterstitialId: ca-app-pub-3940256099942544/4411468910
   interstitialId: 
-  androidRewardedVideoId: ca-app-pub-6777223472784939/7645566129
+  useRewardedAd: 1
+  androidRewardedVideoId: ca-app-pub-3940256099942544/5224354917
   iosRewardedVideoId: ca-app-pub-3940256099942544/1712485313
   rewardedVideoId: 
-  showFpsMeter: 1
+  showFpsMeter: 0
   fpsMeter: {fileID: 0}
   statusText: {fileID: 0}
   OnAdLoadedEvent:
