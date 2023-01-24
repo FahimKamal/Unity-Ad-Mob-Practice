@@ -21,13 +21,16 @@
 ```cs
 class AnyClass : MonoBehaviour{
 ...
-AdManager.Instance.rewardedAd.OnUserEarnedReward += RewardPlayer; // Create the RewardPlayer function
-AdManager.Instance.ShowAdmobRewardedVideo();
+  if (AdManager.Instance.rewardedAd.IsLoaded())
+  {
+      AdManager.Instance.ShowRewardedAd();
+      StartCoroutine(RewardPlayer());
+  }
 ...
 }
 
-private void RewardPlayer(object sender, Reward e)
+private IEnumerator RewardPlayer()
 {
-  // Do your stuff here. And done
+    // Do your staff here.
 }
 ```
