@@ -1,5 +1,4 @@
-﻿using System;
-using GoogleMobileAds.Api;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -31,23 +30,30 @@ public class RewardScene : MonoBehaviour
     
     public void OnReward100ButtonPressed()
     {
-        AdManager.Instance.OnRewardAdClosedEvent.RemoveAllListeners();
-        AdManager.Instance.OnRewardAdClosedEvent.AddListener(For100Reward);
-        AdManager.Instance.ShowRewardedAd();
+        if (AdManager.Instance.rewardedAd.IsLoaded())
+        {
+            AdManager.Instance.ShowRewardedAd();
+            StartCoroutine(For100Reward());
+        }
+        
     }
     
     public void OnReward200ButtonPressed()
     {
-        AdManager.Instance.OnRewardAdClosedEvent.RemoveAllListeners();
-        AdManager.Instance.OnRewardAdClosedEvent.AddListener(For200Reward);
-        AdManager.Instance.ShowRewardedAd();
+        if (AdManager.Instance.rewardedAd.IsLoaded())
+        {
+            AdManager.Instance.ShowRewardedAd();
+            StartCoroutine(For200Reward());
+        }
     }
     
     public void OnReward300ButtonPressed()
     {
-        AdManager.Instance.OnRewardAdClosedEvent.RemoveAllListeners();
-        AdManager.Instance.OnRewardAdClosedEvent.AddListener(For300Reward);
-        AdManager.Instance.ShowRewardedAd();
+        if (AdManager.Instance.rewardedAd.IsLoaded())
+        {
+            AdManager.Instance.ShowRewardedAd();
+            StartCoroutine(For300Reward());
+        }
     }
     
     public void OnRequestAdButtonPressed()
@@ -60,22 +66,25 @@ public class RewardScene : MonoBehaviour
         PopupManager.Instance.ShowPopup("Popup", "Here's your fucking Popup.");
     }
     
-    private void For100Reward()
+    private IEnumerator For100Reward()
     {
+        yield return new WaitForSeconds(0.5f);
         Debug.Log("Reward 100 button pressed");
         PopupManager.Instance.ShowPopup("Ad Showed", "Reward 100 button pressed");
         RewardCoin += 100;
     }
 
-    private void For200Reward()
+    private IEnumerator For200Reward()
     {
+        yield return new WaitForSeconds(0.5f);
         Debug.Log("Reward 200 button pressed");
         PopupManager.Instance.ShowPopup("Ad Showed", "Reward 200 button pressed");
         RewardCoin += 200;
     }
 
-    private void For300Reward()
+    private IEnumerator For300Reward()
     {
+        yield return new WaitForSeconds(0.5f);
         Debug.Log("Reward 300 button pressed");
         PopupManager.Instance.ShowPopup("Ad Showed", "Reward 300 button pressed");
         RewardCoin += 300;
